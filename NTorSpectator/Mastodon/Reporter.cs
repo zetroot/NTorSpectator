@@ -20,7 +20,24 @@ public class Reporter : IReporter
     public async Task PublishReport(IReadOnlyCollection<TorWatchResults> watchResults)
     {
         var sb = new StringBuilder();
-        sb.AppendFormat("Requested {0} sites. Alive: {1}. Down: {2}", watchResults.Count, watchResults.Count(x => x.IsOk), watchResults.Count(x => !x.IsOk));
+        if (watchResults.All(x => x.IsOk))
+        {
+            sb.AppendFormat("\u2705 All sites up! {0} of {1}", watchResults.Count(x => x.IsOk), watchResults.Count);
+        }
+        else
+        {
+            sb.AppendFormat("\u26a0\ufe0f Requested {0} sites", watchResults.Count)
+                .AppendLine()
+                .AppendFormat("\u2705 Alive: {0}",  watchResults.Count(x => x.IsOk))
+                .AppendLine()
+                .AppendFormat("\u274c Down: {0}", watchResults.Count(x => !x.IsOk));
+
+            sb.AppendLine().AppendLine();
+            foreach (var failResult in watchResults.Where(x => !x.IsOk))
+            {
+                sb.AppendFormat("\U0001F4A5 {0} not found", failResult.Site).AppendLine();
+            }
+        }
         await _mastodonClient.Toot(new(sb.ToString()));
         _logger.LogInformation("Posted a new status");
     }
