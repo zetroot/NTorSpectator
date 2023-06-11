@@ -39,7 +39,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     
     - name: Tag commit
-      uses: hole19/git-tag-action@master
-      env:
-        TAG: "${{ env.GitVersion_FullSemVer }}"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: ydataai/create-tag@v1
+      with:
+        tag: "${{ env.GitVersion_FullSemVer }}"
+        message: "${{ env.GitVersion_FullSemVer }}"
