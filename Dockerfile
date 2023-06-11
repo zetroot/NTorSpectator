@@ -2,7 +2,7 @@
 WORKDIR /app
 EXPOSE 8000
 
-FROM mcr.microsoft.com/dotnet/nightly/sdk:8.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["NTorSpectator/NTorSpectator.csproj", "NTorSpectator/"]
 RUN dotnet restore -r linux-arm64 "NTorSpectator/NTorSpectator.csproj"
