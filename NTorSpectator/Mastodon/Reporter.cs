@@ -35,7 +35,7 @@ public class Reporter : IReporter
             sb.AppendLine().AppendLine();
             foreach (var failResult in watchResults.Where(x => !x.IsOk))
             {
-                sb.AppendFormat("  - \U0001F4A5 {0} not found", failResult.Site).AppendLine();
+                sb.AppendFormat("  -\U0001F4A5 {0} not found", failResult.Site).AppendLine();
             }
         }
         await _mastodonClient.Toot(new(sb.ToString()));
