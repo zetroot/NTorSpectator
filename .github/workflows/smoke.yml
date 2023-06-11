@@ -5,6 +5,7 @@ on:
     branches: [ "master", "feature/**", "bugfix/**", "release/**" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,6 +13,11 @@ jobs:
     steps:
     - name: checkout sources
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+      
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
