@@ -5,13 +5,25 @@ on:
     branches: [ "master", "feature/**", "bugfix/**", "release/**" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: checkout sources
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+      
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -26,3 +38,9 @@ jobs:
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    
+    - name: Tag commit
+      uses: ydataai/create-tag@v1
+      with:
+        tag: "${{ env.GitVersion_FullSemVer }}"
+        message: "CI automated tag"
