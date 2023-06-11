@@ -39,8 +39,8 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     
-    - name: Tag commit
+    - name: Tag full semver
       uses: ydataai/create-tag@v1
       with:
         tag: "${{ env.GitVersion_FullSemVer }}"
-        message: "CI automated tag"
+        message: "Autotag full semver"
