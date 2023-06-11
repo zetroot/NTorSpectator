@@ -37,6 +37,13 @@ jobs:
       - name: Determine Version
         uses: gittools/actions/gitversion/execute@v0
           
+      - name: Tag commit
+        if: github.event_name == 'push'
+        uses: ydataai/create-tag@v1
+        with:
+          tag: "v${{ env.GitVersion_SemVer }}"
+          message: "Pushed to master - release tagged by CI"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
         with:
@@ -70,7 +77,7 @@ jobs:
         uses: docker/build-push-action@master
         with:
           context: .
-          platforms: linux/arm64, linux/amd64
+          platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
