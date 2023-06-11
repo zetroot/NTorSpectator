@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: checkout sources
@@ -42,4 +43,4 @@ jobs:
       uses: ydataai/create-tag@v1
       with:
         tag: "${{ env.GitVersion_FullSemVer }}"
-        message: "${{ env.GitVersion_FullSemVer }}"
+        message: "CI automated tag"
