@@ -1,8 +1,8 @@
-﻿FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:7.0-jammy-arm64v8 AS base
 WORKDIR /app
 EXPOSE 8000
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0.102-jammy-amd64 AS build
 WORKDIR /src
 COPY ["NTorSpectator/NTorSpectator.csproj", "NTorSpectator/"]
 RUN dotnet restore -r linux-arm64 "NTorSpectator/NTorSpectator.csproj"
@@ -11,7 +11,7 @@ WORKDIR "/src/NTorSpectator"
 RUN dotnet build -r linux-arm64 --no-self-contained --no-restore "NTorSpectator.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "NTorSpectator.csproj" -c Release -o /app/publish -r linux-arm64 --no-self-contained /p:UseAppHost=false
+RUN dotnet publish "NTorSpectator.csproj" -c Release -o /app/publish -r linux-arm64 --no-self-contained
 
 FROM base AS final
 WORKDIR /app
