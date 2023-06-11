@@ -1,13 +1,14 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using NTorSpectator.TorIntegration;
 
 namespace NTorSpectator.HealthChecks;
 
 public class TorAccessibilityCheck : IHealthCheck
 {
-    private readonly AppOptions _opts;
+    private readonly TorSettings _opts;
 
-    public TorAccessibilityCheck(IOptions<AppOptions> options) => _opts = options.Value;
+    public TorAccessibilityCheck(IOptions<TorSettings> options) => _opts = options.Value;
     
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
@@ -16,7 +17,7 @@ public class TorAccessibilityCheck : IHealthCheck
         
         if (!File.Exists(_opts.TorCookie))
             return Task.FromResult(HealthCheckResult.Unhealthy("Tor cookie not found"));
-
+        
         return Task.FromResult(HealthCheckResult.Healthy());
     }
 }

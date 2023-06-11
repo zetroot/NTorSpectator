@@ -1,23 +1,30 @@
 using System.Net.Sockets;
 using System.Text;
+using Microsoft.Extensions.Options;
 using NeoSmart.AsyncLock;
 
 namespace NTorSpectator.TorIntegration;
 
 public class TorControlManager
 {
-    private const string controlSocketName = "/run/tor/control"; 
+    private readonly string _controlSocketName;
+    private readonly string _torCookiePath;
+    private readonly TimeSpan _replyTimeout;
+    
     private Socket _torControl;
     private readonly ILogger<TorControlManager> _logger;
 
     private readonly object _connectSync = new();
     private readonly AsyncLock _commandSync = new();
     private readonly Memory<byte> rcvBuf = new byte[100_000];
-    
-    public TorControlManager(ILogger<TorControlManager> logger)
+
+    public TorControlManager(ILogger<TorControlManager> logger, IOptions<TorSettings> options)
     {
         _logger = logger;
         _torControl = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+        _controlSocketName = options.Value.TorSocket;
+        _torCookiePath = options.Value.TorCookie;
+        _replyTimeout = options.Value.ReplyReceiveTimeout;
     }
 
     public void EnsureConnected()
@@ -30,7 +37,7 @@ public class TorControlManager
             {
                 _logger.LogDebug("Not connected to tor control socket. Connecting now");
                 _torControl = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-                _torControl.Connect(new UnixDomainSocketEndPoint(controlSocketName));
+                _torControl.Connect(new UnixDomainSocketEndPoint(_controlSocketName));
                 _logger.LogInformation("Connected to tor control socket!");
             }
         }
@@ -54,7 +61,7 @@ public class TorControlManager
 
     public async Task<bool> Authenticate()
     {
-        var authCookie = ToHex(File.ReadAllBytes("/run/tor/control.authcookie"));
+        var authCookie = ToHex(File.ReadAllBytes(_torCookiePath));
         _logger.LogDebug("Read auth cookie");
         _logger.LogTrace("Auth cookie today is {Cookie}", authCookie);
         var response = await SendCommand($"AUTHENTICATE {authCookie}\r\n");
@@ -64,6 +71,7 @@ public class TorControlManager
 
     public async Task<IReadOnlyCollection<HsDescEventReply>> HsFetch(string serviceDesc)
     {
+        serviceDesc = serviceDesc.Trim().Replace(".onion", string.Empty);
         EnsureConnected();
         await Authenticate();
         await SendCommand("SETEVENTS HS_DESC");
@@ -71,7 +79,7 @@ public class TorControlManager
         var results = new List<HsDescEventReply>(10);
         while (true)
         {
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            var cts = new CancellationTokenSource(_replyTimeout);
             try
             {
                 var responses = await Receive(cts.Token);

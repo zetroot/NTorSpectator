@@ -1,6 +1,10 @@
-using NTorSpectator;
+using Microsoft.Extensions.Options;
 using NTorSpectator.HealthChecks;
+using NTorSpectator.Mastodon;
+using NTorSpectator.Services;
+using NTorSpectator.TorIntegration;
 using Prometheus;
+using Refit;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -16,13 +20,34 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Error(msg));
 
-// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.Configure<AppOptions>(builder.Configuration);
+
+builder.Services
+    .Configure<TorSettings>(builder.Configuration.GetSection(nameof(TorSettings)))
+    .Configure<SpectatorSettings>(builder.Configuration.GetSection(nameof(SpectatorSettings)))
+    .Configure<MastodonSettings>(builder.Configuration.GetSection(nameof(MastodonSettings)));
+
+
 builder.Services.RegisterApplicationHealthChecks(builder.Configuration);
+
+builder.Services
+    .AddTransient<IReporter, Reporter>()
+    .AddTransient<TorControlManager>()
+    .AddHostedService<Spectator>();
+
+builder.Services
+    .AddRefitClient<IMastodonClient>(sp =>
+    {
+        var settings = sp.GetRequiredService<IOptions<MastodonSettings>>();
+        return new RefitSettings { AuthorizationHeaderValueGetter = () => Task.FromResult(settings.Value.Token) };
+    })
+    .ConfigureHttpClient((sp, client) =>
+    {
+        var settings = sp.GetRequiredService<IOptions<MastodonSettings>>();
+        client.BaseAddress = settings.Value.Instance;
+    });
 
 var app = builder.Build();
 
