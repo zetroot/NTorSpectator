@@ -37,3 +37,9 @@ jobs:
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    
+    - name: Tag commit
+      uses: tvdias/github-tagger@v0.0.2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: ""${{ env.fullSemVer }}"
