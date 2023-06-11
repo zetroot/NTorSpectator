@@ -28,14 +28,14 @@ public class Reporter : IReporter
         {
             sb.AppendFormat("\u26a0\ufe0f Requested {0} sites", watchResults.Count)
                 .AppendLine()
-                .AppendFormat("\u2705 Alive: {0}",  watchResults.Count(x => x.IsOk))
+                .AppendFormat("  \u2705 Alive: {0}",  watchResults.Count(x => x.IsOk))
                 .AppendLine()
-                .AppendFormat("\u274c Down: {0}", watchResults.Count(x => !x.IsOk));
+                .AppendFormat("  \u274c Down: {0}", watchResults.Count(x => !x.IsOk));
 
             sb.AppendLine().AppendLine();
             foreach (var failResult in watchResults.Where(x => !x.IsOk))
             {
-                sb.AppendFormat("\U0001F4A5 {0} not found", failResult.Site).AppendLine();
+                sb.AppendFormat("  - \U0001F4A5 {0} not found", failResult.Site).AppendLine();
             }
         }
         await _mastodonClient.Toot(new(sb.ToString()));
