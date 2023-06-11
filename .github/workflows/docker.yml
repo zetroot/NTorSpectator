@@ -3,17 +3,16 @@ name: Docker
 on:
   push:
     branches: [ "master" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "master" ]
+  release:
+    types: [ "published" ]
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
 
 jobs:
   build:
@@ -41,8 +40,8 @@ jobs:
         if: github.event_name == 'push'
         uses: ydataai/create-tag@v1
         with:
-          tag: "v${{ env.GitVersion_SemVer }}"
-          message: "Pushed to master - release tagged by CI"
+          tag: "${{ env.GitVersion_SemVer }}"
+          message: "Automated tagging of master commits"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
