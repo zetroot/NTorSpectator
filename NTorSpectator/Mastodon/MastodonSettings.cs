@@ -14,4 +14,9 @@ public class MastodonSettings
     /// API access token to use
     /// </summary>
     public required string Token { get; init; }
+
+    /// <summary>
+    /// Maximum message length
+    /// </summary>
+    public required int MessageLimit { get; init; } = 500;
 }
