@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using NTorSpectator.TorIntegration;
+using NTorSpectator.Observer.TorIntegration;
 
-namespace NTorSpectator.HealthChecks;
+namespace NTorSpectator.Observer.HealthChecks;
 
 public class TorAccessibilityCheck : IHealthCheck
 {

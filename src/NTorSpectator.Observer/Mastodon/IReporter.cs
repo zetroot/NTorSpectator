@@ -1,6 +1,6 @@
-using NTorSpectator.Services;
+using NTorSpectator.Observer.Services;
 
-namespace NTorSpectator.Mastodon;
+namespace NTorSpectator.Observer.Mastodon;
 
 public interface IReporter
 {

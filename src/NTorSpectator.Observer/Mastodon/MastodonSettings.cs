@@ -1,4 +1,4 @@
-namespace NTorSpectator.Mastodon;
+namespace NTorSpectator.Observer.Mastodon;
 
 /// <summary>
 /// Settings for mastodon bot connection

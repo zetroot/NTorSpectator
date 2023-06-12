@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using NTorSpectator.Mastodon;
-using NTorSpectator.TorIntegration;
+using NTorSpectator.Observer.Mastodon;
+using NTorSpectator.Observer.TorIntegration;
 
-namespace NTorSpectator.Services;
+namespace NTorSpectator.Observer.Services;
 
 public class Spectator : BackgroundService
 {

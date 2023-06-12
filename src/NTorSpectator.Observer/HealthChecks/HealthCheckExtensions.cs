@@ -1,6 +1,6 @@
 using Prometheus;
 
-namespace NTorSpectator.HealthChecks;
+namespace NTorSpectator.Observer.HealthChecks;
 
 public static class HealthCheckExtensions
 {

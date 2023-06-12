@@ -1,6 +1,6 @@
 using Refit;
 
-namespace NTorSpectator.Mastodon;
+namespace NTorSpectator.Observer.Mastodon;
 
 /// <summary>
 /// Refit mastodon api client

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace NTorSpectator.Mastodon;
+namespace NTorSpectator.Observer.Mastodon;
 
 /// <summary>
 /// Request model to create a new toot

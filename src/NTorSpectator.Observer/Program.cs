@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using NTorSpectator.HealthChecks;
-using NTorSpectator.Mastodon;
-using NTorSpectator.Services;
-using NTorSpectator.TorIntegration;
+using NTorSpectator.Observer.HealthChecks;
+using NTorSpectator.Observer.Mastodon;
+using NTorSpectator.Observer.Services;
+using NTorSpectator.Observer.TorIntegration;
 using Prometheus;
 using Refit;
 using Serilog;

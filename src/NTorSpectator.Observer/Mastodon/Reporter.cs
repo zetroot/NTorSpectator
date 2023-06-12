@@ -1,8 +1,8 @@
 using System.Text;
 using Microsoft.Extensions.Options;
-using NTorSpectator.Services;
+using NTorSpectator.Observer.Services;
 
-namespace NTorSpectator.Mastodon;
+namespace NTorSpectator.Observer.Mastodon;
 
 /// <summary>
 /// Reporter service - publishes report based on tor watch results

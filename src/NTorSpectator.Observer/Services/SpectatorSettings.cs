@@ -1,4 +1,4 @@
-namespace NTorSpectator.Services;
+namespace NTorSpectator.Observer.Services;
 
 /// <summary>
 /// Settings for spectator: where to watch for sites, how often watch for sites

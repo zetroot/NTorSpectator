@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using NeoSmart.AsyncLock;
 
-namespace NTorSpectator.TorIntegration;
+namespace NTorSpectator.Observer.TorIntegration;
 
 public class TorControlManager
 {

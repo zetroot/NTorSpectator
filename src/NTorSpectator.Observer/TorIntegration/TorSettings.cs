@@ -1,4 +1,4 @@
-namespace NTorSpectator.TorIntegration;
+namespace NTorSpectator.Observer.TorIntegration;
 
 /// <summary>
 /// Settings for tor daemon interactions 
