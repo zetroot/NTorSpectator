@@ -8,7 +8,7 @@ COPY ["src/NTorSpectator.Database/NTorSpectator.Database.csproj", "NTorSpectator
 COPY ["src/NTorSpectator.Services/NTorSpectator.Services.csproj", "NTorSpectator.Services/"]
 COPY ["src/NTorSpectator.Observer/NTorSpectator.Observer.csproj", "NTorSpectator.Observer/"]
 RUN dotnet restore -r linux-arm64 "NTorSpectator.Observer/NTorSpectator.Observer.csproj"
-COPY . .
+COPY /src .
 WORKDIR "/src/NTorSpectator.Observer"
 RUN dotnet build -r linux-arm64 --no-self-contained --no-restore "NTorSpectator.Observer.csproj" -c Release -o /app/build
 
