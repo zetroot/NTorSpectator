@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NTorSpectator.Services.Models;
 using NTorSpectator.Services.Persistent;
 
 namespace NTorSpectator.Services.Logic;
@@ -36,4 +37,6 @@ internal class SitesCatalogue : ISitesCatalogue
             return true;
         }
     }
+
+    public Task<IReadOnlyCollection<Site>> GetAllSites() => _repository.GetAllSites();
 }

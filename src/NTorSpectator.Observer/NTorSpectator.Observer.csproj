@@ -31,4 +31,8 @@
       <Folder Include="Controllers\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NTorSpectator.Services\NTorSpectator.Services.csproj" />
+    </ItemGroup>
+
 </Project>

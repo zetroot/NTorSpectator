@@ -1,3 +1,5 @@
+using NTorSpectator.Services.Models;
+
 namespace NTorSpectator.Services;
 
 /// <summary>
@@ -11,4 +13,6 @@ public interface ISitesCatalogue
     /// <param name="siteUri">onion site uri</param>
     /// <returns>true if the site was added, otherwise - false</returns>
     Task<bool> AddIfNotExists(string siteUri);
+
+    Task<IReadOnlyCollection<Site>> GetAllSites();
 }
