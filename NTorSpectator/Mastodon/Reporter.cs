@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.Extensions.Options;
 using NTorSpectator.Services;
 
 namespace NTorSpectator.Mastodon;
@@ -10,11 +11,14 @@ public class Reporter : IReporter
 {
     private readonly ILogger<Reporter> _logger;
     private readonly IMastodonClient _mastodonClient;
+    private readonly int _messageLimit;
+    private const string TRUNCATED_TAIL = "\n[TRUNCATED]";
 
-    public Reporter(ILogger<Reporter> logger, IMastodonClient mastodonClient)
+    public Reporter(ILogger<Reporter> logger, IMastodonClient mastodonClient, IOptions<MastodonSettings> mastodonSettings)
     {
         _logger = logger;
         _mastodonClient = mastodonClient;
+        _messageLimit = mastodonSettings.Value.MessageLimit;
     }
 
     public async Task PublishReport(IReadOnlyCollection<TorWatchResults> watchResults)
@@ -32,12 +36,20 @@ public class Reporter : IReporter
                 .AppendLine()
                 .AppendFormat("  \u274c Down: {0}", watchResults.Count(x => !x.IsOk));
 
-            sb.AppendLine().AppendLine();
+            sb.AppendLine().AppendLine().AppendLine("Failed sites:");
             foreach (var failResult in watchResults.Where(x => !x.IsOk))
             {
-                sb.AppendFormat("  -\U0001F4A5 {0} not found", failResult.Site).AppendLine();
+                sb.AppendFormat("\U0001F4A5 http://{0} ", failResult.Site).AppendLine();
             }
         }
+
+        if (sb.Length > _messageLimit)
+        {
+            var tailBegin = _messageLimit - TRUNCATED_TAIL.Length;
+            var tailLength = sb.Length - tailBegin;
+            sb.Remove(tailBegin, tailLength).Append(TRUNCATED_TAIL);
+        }
+        
         await _mastodonClient.Toot(new(sb.ToString()));
         _logger.LogInformation("Posted a new status");
     }
