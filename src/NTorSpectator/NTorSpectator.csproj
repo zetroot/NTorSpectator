@@ -22,9 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
       <Content Update="appsettings.Local.json">
         <DependentUpon>appsettings.json</DependentUpon>
       </Content>

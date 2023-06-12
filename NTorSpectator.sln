@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTorSpectator", "NTorSpectator\NTorSpectator.csproj", "{1F4AA365-C2C1-4CEB-B84B-37AF167110F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTorSpectator", "src\NTorSpectator\NTorSpectator.csproj", "{8D938363-29D0-41C1-8C0F-FD89956F7A8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0C068D08-CE4D-41B4-A27B-81B25C7AB8FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTorSpectator.Database", "src\NTorSpectator.Database\NTorSpectator.Database.csproj", "{816C35A4-1244-4940-93C6-AB440ADB6363}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,17 @@ Global
 		{1F4AA365-C2C1-4CEB-B84B-37AF167110F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F4AA365-C2C1-4CEB-B84B-37AF167110F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F4AA365-C2C1-4CEB-B84B-37AF167110F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D938363-29D0-41C1-8C0F-FD89956F7A8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D938363-29D0-41C1-8C0F-FD89956F7A8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D938363-29D0-41C1-8C0F-FD89956F7A8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D938363-29D0-41C1-8C0F-FD89956F7A8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{816C35A4-1244-4940-93C6-AB440ADB6363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{816C35A4-1244-4940-93C6-AB440ADB6363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{816C35A4-1244-4940-93C6-AB440ADB6363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{816C35A4-1244-4940-93C6-AB440ADB6363}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8D938363-29D0-41C1-8C0F-FD89956F7A8F} = {0C068D08-CE4D-41B4-A27B-81B25C7AB8FE}
+		{816C35A4-1244-4940-93C6-AB440ADB6363} = {0C068D08-CE4D-41B4-A27B-81B25C7AB8FE}
 	EndGlobalSection
 EndGlobal
