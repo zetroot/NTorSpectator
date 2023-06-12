@@ -47,7 +47,7 @@ public class Spectator : BackgroundService
         var sites = await _sitesCatalogue.GetAllSites();
         foreach (var site in sites)
         {
-            using (_logger.BeginScope(new Dictionary<string, object> { { "HiddenService", site } }))
+            using (_logger.BeginScope(new Dictionary<string, object> { { "HiddenService", site.SiteUri } }))
             {
                 try
                 {
