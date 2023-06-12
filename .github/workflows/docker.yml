@@ -65,7 +65,7 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata for observer image
-        id: meta
+        id: meta-observer
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.OBSERVER_IMAGE_NAME }}
@@ -73,22 +73,22 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push observer image
-        id: build-and-push
+        id: build-and-push-observer
         uses: docker/build-push-action@master
         with:
           file: Observer.Dockerfile
           context: .
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-observer.outputs.tags }}
+          labels: ${{ steps.meta-observer.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata for bundle image
-        id: meta
+        id: meta-bundle
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.BUNDLE_IMAGE_NAME }}
@@ -96,15 +96,14 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push bundle image
-        id: build-and-push
+        id: build-and-push-bundle
         uses: docker/build-push-action@master
         with:
           file: MigrationsBundle.Dockerfile
           context: .
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-bundle.outputs.tags }}
+          labels: ${{ steps.meta-bundle.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  
