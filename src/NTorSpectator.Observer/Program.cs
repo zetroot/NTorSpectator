@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Options;
+using NTorSpectator.Database;
 using NTorSpectator.Observer.HealthChecks;
 using NTorSpectator.Observer.Mastodon;
 using NTorSpectator.Observer.Services;
 using NTorSpectator.Observer.TorIntegration;
+using NTorSpectator.Services;
 using Prometheus;
 using Refit;
 using Serilog;
@@ -34,6 +36,8 @@ builder.Services.RegisterApplicationHealthChecks(builder.Configuration);
 
 builder.Services
     .AddTransient<IReporter, Reporter>()
+    .AddBizLogic()
+    .AddDatabase(builder.Configuration)
     .AddTransient<TorControlManager>()
     .AddHostedService<Spectator>();
 

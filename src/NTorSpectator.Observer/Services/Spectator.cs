@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using NTorSpectator.Observer.TorIntegration;
 using NTorSpectator.Services;
-using IReporter = NTorSpectator.Observer.Mastodon.IReporter;
 
 namespace NTorSpectator.Observer.Services;
 

@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Options;
 using NTorSpectator.Observer.Services;
+using NTorSpectator.Services;
 
 namespace NTorSpectator.Observer.Mastodon;
 
@@ -52,5 +53,21 @@ public class Reporter : IReporter
         
         await _mastodonClient.Toot(new(sb.ToString()));
         _logger.LogInformation("Posted a new status");
+    }
+
+    public async Task ReportWentDown(string siteUri, DateTime lastSeen)
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat("\u274c {0} gone down. \nLast seen {1}", siteUri, lastSeen);
+        await _mastodonClient.Toot(new(sb.ToString()));
+        _logger.LogInformation("Posted a new status about going down");
+    }
+
+    public async Task ReportCameUp(string siteUri)
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat("\u2705 {0} came up! \n\U0001F4A5 \U0001F4A5 \U0001F4A5", siteUri);
+        await _mastodonClient.Toot(new(sb.ToString()));
+        _logger.LogInformation("Posted a new status about came up site");
     }
 }

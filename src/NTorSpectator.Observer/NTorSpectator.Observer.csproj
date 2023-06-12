@@ -32,6 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\NTorSpectator.Database\NTorSpectator.Database.csproj" />
       <ProjectReference Include="..\NTorSpectator.Services\NTorSpectator.Services.csproj" />
     </ItemGroup>
 
