@@ -18,7 +18,7 @@ internal class SitesRepository : ISitesRepository
         return sites.Select(x => new Site { SiteUri = x.SiteUri }).ToList();
     }
 
-    public Task<bool> Exists(string siteUri) => _context.Sites.AnyAsync(x => string.Equals(x.SiteUri, siteUri, StringComparison.OrdinalIgnoreCase));
+    public Task<bool> Exists(string siteUri) => _context.Sites.AnyAsync(x => x.SiteUri== siteUri);
 
     public async Task AddNewSite(string siteUri)
     {

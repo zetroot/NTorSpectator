@@ -15,7 +15,7 @@ internal class ObservesRepository : IObservesRepository
     public async Task<Observation?> GetLastObservationForSite(string siteUri)
     {
         var siteId = await _context.Sites
-            .Where(x => string.Equals(x.SiteUri, siteUri, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.SiteUri == siteUri)
             .Select(x => x.Id)
             .SingleAsync();
         var observation = await _context.Observations.Where(x => x.SiteId == siteId).OrderByDescending(x => x.ObservedAt).FirstOrDefaultAsync();
@@ -28,7 +28,7 @@ internal class ObservesRepository : IObservesRepository
     public async Task AddNewObservation(string siteUri, bool isAvailable, DateTime timestamp)
     {
         var siteId = await _context.Sites
-            .Where(x => string.Equals(x.SiteUri, siteUri, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.SiteUri == siteUri)
             .Select(x => x.Id)
             .SingleAsync();
 
