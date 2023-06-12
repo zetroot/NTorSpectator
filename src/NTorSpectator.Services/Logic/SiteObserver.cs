@@ -21,7 +21,7 @@ public class SiteObserver : ISiteObserver
         using var _ = _logger.BeginScope(new Dictionary<string, object> { { "SiteUri", siteUri }, { "IsAvailable", isAvailable } });
         _logger.LogDebug("Got new observation to save");
         var previousObservation = await _repo.GetLastObservationForSite(siteUri);
-        await _repo.AddNewObservation(siteUri, isAvailable, DateTime.Now);
+        await _repo.AddNewObservation(siteUri, isAvailable, DateTime.UtcNow);
         _logger.LogInformation("Saved new observation");
         if (previousObservation is null)
         {
