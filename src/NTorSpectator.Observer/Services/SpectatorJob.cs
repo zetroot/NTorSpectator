@@ -22,12 +22,15 @@ public class SpectatorJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
+        _logger.LogDebug("Starting sites observations");
         var sites = await _sitesCatalogue.GetAllSites();
-        var siteQueue = new Queue<QueuedSite>(sites.Select(x => new QueuedSite(x, 0)));
+        _logger.LogDebug("Got {Count} sites to observe", sites.Count);
         
+        var siteQueue = new Queue<QueuedSite>(sites.Select(x => new QueuedSite(x, 0)));
         while(siteQueue.TryDequeue(out var queuedSite))
         {
             using var _ = _logger.BeginScope(new Dictionary<string, object> { { "HiddenService", queuedSite.Site.SiteUri } });
+            _logger.LogDebug("Starting observations on the next site");
             try
             {
                 var observations = await ObserveSite(queuedSite.Site.SiteUri);
@@ -42,6 +45,7 @@ public class SpectatorJob : IJob
                         continue;
                     }
                 }
+                _logger.LogDebug("Site seems to be up");
                 await _siteObserver.AddNewObservation(queuedSite.Site.SiteUri, observations.IsOk);
                 _logger.LogInformation("Site observed");
             }
@@ -50,6 +54,7 @@ public class SpectatorJob : IJob
                 _logger.LogError(e, "Observation for site failed");
             }
         }
+        _logger.LogDebug("The queue is finally empty, observations finished");
     }
     
     private record QueuedSite(Site Site, int ObservationsCount);
