@@ -86,7 +86,7 @@ public class TorControlManager
                 _logger.LogTrace("Received {Count} messages", responses.Length);
 
                 var replies = responses.Select(x => TorReply.TryParse(x, out var reply) ? reply : null).Where(x => x != null).ToList();
-                _logger.LogInformation("Parsed {Count}", replies.Count);
+                _logger.LogDebug("Parsed {Count}", replies.Count);
                 var hsDescEvents = replies.OfType<HsDescEventReply>().Where(x => x.Action is HsDescAction.Received or HsDescAction.Failed).ToList();
                 results.AddRange(hsDescEvents);
                 if (results.Any(x => x.Action == HsDescAction.Received))

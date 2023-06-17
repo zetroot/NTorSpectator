@@ -1,56 +1,36 @@
-using Microsoft.Extensions.Options;
 using NTorSpectator.Observer.TorIntegration;
 using NTorSpectator.Services;
 using NTorSpectator.Services.Models;
+using Quartz;
 
 namespace NTorSpectator.Observer.Services;
 
-public class Spectator : BackgroundService
+public class SpectatorJob : IJob
 {
-    private readonly ILogger<Spectator> _logger;
-    private readonly TorControlManager _torControl;
-    private readonly string _torSitesFile;
-    private readonly TimeSpan _cooldown;
+    private readonly ILogger<SpectatorJob> _logger;
     private readonly ISitesCatalogue _sitesCatalogue;
+    private readonly TorControlManager _torControl;
     private readonly ISiteObserver _siteObserver;
 
-    public Spectator(ILogger<Spectator> logger, TorControlManager torControl, IOptions<SpectatorSettings> opts, ISitesCatalogue sitesCatalogue, ISiteObserver siteObserver)
+    public SpectatorJob(ILogger<SpectatorJob> logger, ISitesCatalogue sitesCatalogue, TorControlManager torControl, ISiteObserver siteObserver)
     {
         _logger = logger;
-        _torControl = torControl;
         _sitesCatalogue = sitesCatalogue;
+        _torControl = torControl;
         _siteObserver = siteObserver;
-        _torSitesFile = opts.Value.SiteList;
-        _cooldown = opts.Value.CooldownInterval;
     }
 
-    public bool IsRunning { get; private set; }
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task Execute(IJobExecutionContext context)
     {
-        try
-        {
-            IsRunning = true;
-            await UpdateSites();
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Watch();
-                await Task.Delay(_cooldown, stoppingToken);
-            }
-        }
-        finally
-        {
-            IsRunning = false;
-        }
-    }
-
-    private async Task Watch()
-    {
+        _logger.LogDebug("Starting sites observations");
         var sites = await _sitesCatalogue.GetAllSites();
-        var siteQueue = new Queue<QueuedSite>(sites.Select(x => new QueuedSite(x, 0)));
+        _logger.LogDebug("Got {Count} sites to observe", sites.Count);
         
+        var siteQueue = new Queue<QueuedSite>(sites.Select(x => new QueuedSite(x, 0)));
         while(siteQueue.TryDequeue(out var queuedSite))
         {
             using var _ = _logger.BeginScope(new Dictionary<string, object> { { "HiddenService", queuedSite.Site.SiteUri } });
+            _logger.LogDebug("Starting observations on the next site");
             try
             {
                 var observations = await ObserveSite(queuedSite.Site.SiteUri);
@@ -65,6 +45,7 @@ public class Spectator : BackgroundService
                         continue;
                     }
                 }
+                _logger.LogDebug("Site seems to be up");
                 await _siteObserver.AddNewObservation(queuedSite.Site.SiteUri, observations.IsOk);
                 _logger.LogInformation("Site observed");
             }
@@ -73,16 +54,11 @@ public class Spectator : BackgroundService
                 _logger.LogError(e, "Observation for site failed");
             }
         }
+        _logger.LogDebug("The queue is finally empty, observations finished");
     }
-
-    private async Task UpdateSites()
-    {
-        var sites = await File.ReadAllLinesAsync(_torSitesFile);
-        foreach (var site in sites)
-        {
-            await _sitesCatalogue.AddIfNotExists(site);
-        }
-    }
+    
+    private record QueuedSite(Site Site, int ObservationsCount);
+    
     private async Task<TorWatchResults> ObserveSite(string site)
     {
         var torReply = await _torControl.HsFetch(site);
@@ -90,11 +66,4 @@ public class Spectator : BackgroundService
         var negative = torReply.Count(x => x.Action == HsDescAction.Failed);
         return new(site, positive, negative);
     }
-
-    private record QueuedSite(Site Site, int ObservationsCount);
-}
-
-public record TorWatchResults(string Site, int Positive, int Negative)
-{
-    public bool IsOk => Positive > 0;
 }
