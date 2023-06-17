@@ -6,6 +6,7 @@ using NTorSpectator.Observer.Services;
 using NTorSpectator.Observer.TorIntegration;
 using NTorSpectator.Services;
 using Prometheus;
+using Quartz;
 using Refit;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -39,7 +40,21 @@ builder.Services
     .AddBizLogic()
     .AddDatabase(builder.Configuration)
     .AddTransient<TorControlManager>()
-    .AddHostedService<Spectator>();
+    .AddTransient<SpectatorJob>()
+    .AddHostedService<SitesUpdater>();
+
+builder.Services.AddQuartz(cfg =>
+{
+    cfg.UseMicrosoftDependencyInjectionJobFactory();
+    
+    var jobDetail = JobBuilder.Create<SpectatorJob>()
+        .WithDescription("Tor spectator job")
+        .WithIdentity("tor-spectator")
+        .Build();
+    cfg.AddJob<SpectatorJob>(jobKey: jobDetail.Key, configure: j => {});
+    cfg.AddTrigger(t => t.WithCronSchedule("0 0 * * * ?").ForJob(jobDetail));
+});
+builder.Services.AddQuartzServer(cfg => cfg.WaitForJobsToComplete = false);
 
 builder.Services
     .AddRefitClient<IMastodonClient>(sp =>
