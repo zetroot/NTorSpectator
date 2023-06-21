@@ -10,7 +10,12 @@ public class SpectatorJob : IJob
 {
     private static readonly Gauge QueueLength = Metrics.CreateGauge("sites_queue_length", "Length of the queue left to observe");
     private static readonly Counter ObservationsCount = Metrics.CreateCounter("observations", "counts all observations");
-    private static readonly Counter RetriesCount = Metrics.CreateCounter("enqueued_retries", "counts retires"); 
+    private static readonly Counter RetriesCount = Metrics.CreateCounter("enqueued_retries", "counts retires");
+    private static readonly Histogram RequestDuration = Metrics.CreateHistogram("observation_duration", "duration of site observation",
+        new HistogramConfiguration
+        {
+            Buckets = Histogram.LinearBuckets(0.5, 0.5, 20)
+        });
     
     private readonly ILogger<SpectatorJob> _logger;
     private readonly ISitesCatalogue _sitesCatalogue;
@@ -69,6 +74,7 @@ public class SpectatorJob : IJob
     
     private async Task<TorWatchResults> ObserveSite(string site)
     {
+        using var _ = RequestDuration.NewTimer();
         var torReply = await _torControl.HsFetch(site);
         var positive = torReply.Count(x => x.Action == HsDescAction.Received);
         var negative = torReply.Count(x => x.Action == HsDescAction.Failed);
