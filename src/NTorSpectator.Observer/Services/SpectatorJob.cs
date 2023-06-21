@@ -9,6 +9,9 @@ namespace NTorSpectator.Observer.Services;
 public class SpectatorJob : IJob
 {
     private static readonly Gauge QueueLength = Metrics.CreateGauge("sites_queue_length", "Length of the queue left to observe");
+    private static readonly Counter ObservationsCount = Metrics.CreateCounter("observations", "counts all observations");
+    private static readonly Counter RetriesCount = Metrics.CreateCounter("enqueued_retries", "counts retires"); 
+    
     private readonly ILogger<SpectatorJob> _logger;
     private readonly ISitesCatalogue _sitesCatalogue;
     private readonly TorControlManager _torControl;
@@ -37,6 +40,7 @@ public class SpectatorJob : IJob
             try
             {
                 var observations = await ObserveSite(queuedSite.Site.SiteUri);
+                ObservationsCount.Inc();
                 if (!observations.IsOk)
                 {
                     _logger.LogDebug("Site observed as not available");
@@ -45,6 +49,7 @@ public class SpectatorJob : IJob
                     {
                         _logger.LogDebug("Site has been observed {Count} times, returning it to queue", siteObservationsCount);
                         siteQueue.Enqueue(queuedSite with{ObservationsCount = siteObservationsCount + 1});
+                        RetriesCount.Inc();
                         continue;
                     }
                 }
