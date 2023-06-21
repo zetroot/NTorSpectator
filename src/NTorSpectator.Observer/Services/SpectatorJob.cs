@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using NTorSpectator.Observer.TorIntegration;
 using NTorSpectator.Services;
 using NTorSpectator.Services.Models;
@@ -16,6 +17,7 @@ public class SpectatorJob : IJob
         {
             Buckets = Histogram.LinearBuckets(0.5, 0.5, 20)
         });
+    private static readonly Gauge TotalSessionDuration = Metrics.CreateGauge("observation_session_duration", "Total observation session duration, ms");
     
     private readonly ILogger<SpectatorJob> _logger;
     private readonly ISitesCatalogue _sitesCatalogue;
@@ -32,6 +34,8 @@ public class SpectatorJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
+        TotalSessionDuration.Set(0);
+        var sw = Stopwatch.StartNew();
         _logger.LogDebug("Starting sites observations");
         var sites = await _sitesCatalogue.GetAllSites();
         _logger.LogDebug("Got {Count} sites to observe", sites.Count);
@@ -68,6 +72,8 @@ public class SpectatorJob : IJob
             }
         }
         _logger.LogDebug("The queue is finally empty, observations finished");
+        sw.Stop();
+        TotalSessionDuration.Set(sw.ElapsedMilliseconds);
     }
     
     private record QueuedSite(Site Site, int ObservationsCount);
