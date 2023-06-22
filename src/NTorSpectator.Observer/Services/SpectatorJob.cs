@@ -18,6 +18,7 @@ public class SpectatorJob : IJob
             Buckets = Histogram.LinearBuckets(0.5, 0.5, 20)
         });
     private static readonly Gauge TotalSessionDuration = Metrics.CreateGauge("observation_session_duration", "Total observation session duration, ms");
+    private static readonly Gauge SiteStatus = Metrics.CreateGauge("site_aliveness", "Reports site aliveness status", "site");
     
     private readonly ILogger<SpectatorJob> _logger;
     private readonly ISitesCatalogue _sitesCatalogue;
@@ -64,6 +65,7 @@ public class SpectatorJob : IJob
                 }
                 _logger.LogDebug("Site seems to be up");
                 await _siteObserver.AddNewObservation(queuedSite.Site.SiteUri, observations.IsOk);
+                SiteStatus.WithLabels(queuedSite.Site.SiteUri).Set(observations.IsOk ? 1 : 0);
                 _logger.LogInformation("Site observed");
             }
             catch (Exception e)
