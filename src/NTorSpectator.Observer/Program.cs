@@ -50,6 +50,7 @@ builder.Services.AddQuartz(cfg =>
     var jobDetail = JobBuilder.Create<SpectatorJob>()
         .WithDescription("Tor spectator job")
         .WithIdentity("tor-spectator")
+        .DisallowConcurrentExecution()
         .Build();
     cfg.AddJob<SpectatorJob>(jobKey: jobDetail.Key, configure: j => {});
     cfg.AddTrigger(t => t.WithCronSchedule("0 0 * * * ?").ForJob(jobDetail));
