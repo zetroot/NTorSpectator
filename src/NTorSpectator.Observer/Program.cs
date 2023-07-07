@@ -61,7 +61,7 @@ builder.Services
     .AddRefitClient<IMastodonClient>(sp =>
     {
         var settings = sp.GetRequiredService<IOptions<MastodonSettings>>();
-        return new RefitSettings { AuthorizationHeaderValueGetter = () => Task.FromResult(settings.Value.Token) };
+        return new RefitSettings { AuthorizationHeaderValueGetter = (_,_) => Task.FromResult(settings.Value.Token) };
     })
     .ConfigureHttpClient((sp, client) =>
     {
