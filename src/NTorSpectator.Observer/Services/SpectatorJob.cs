@@ -15,7 +15,7 @@ public class SpectatorJob : IJob
     private static readonly Histogram RequestDuration = Metrics.CreateHistogram("observation_duration", "duration of site observation",
         new HistogramConfiguration
         {
-            Buckets = Histogram.LinearBuckets(0.5, 0.5, 20)
+            Buckets = Histogram.LinearBuckets(0.5, 0.5, 30)
         });
     private static readonly Gauge TotalSessionDuration = Metrics.CreateGauge("observation_session_duration", "Total observation session duration, ms");
     private static readonly Gauge SiteStatus = Metrics.CreateGauge("site_aliveness", "Reports site aliveness status", "site");
