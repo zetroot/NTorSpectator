@@ -24,13 +24,15 @@ public class SpectatorJob : IJob
     private readonly ISitesCatalogue _sitesCatalogue;
     private readonly TorControlManager _torControl;
     private readonly ISiteObserver _siteObserver;
+    private readonly IReporter _reporter;
 
-    public SpectatorJob(ILogger<SpectatorJob> logger, ISitesCatalogue sitesCatalogue, TorControlManager torControl, ISiteObserver siteObserver)
+    public SpectatorJob(ILogger<SpectatorJob> logger, ISitesCatalogue sitesCatalogue, TorControlManager torControl, ISiteObserver siteObserver, IReporter reporter)
     {
         _logger = logger;
         _sitesCatalogue = sitesCatalogue;
         _torControl = torControl;
         _siteObserver = siteObserver;
+        _reporter = reporter;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -42,6 +44,7 @@ public class SpectatorJob : IJob
         _logger.LogDebug("Got {Count} sites to observe", sites.Count);
         
         var siteQueue = new Queue<QueuedSite>(sites.Select(x => new QueuedSite(x, 0)));
+        var report = new Report();
         while(siteQueue.TryDequeue(out var queuedSite))
         {
             QueueLength.Set(siteQueue.Count);
@@ -63,8 +66,17 @@ public class SpectatorJob : IJob
                         continue;
                     }
                 }
-                _logger.LogDebug("Site seems to be up");
-                await _siteObserver.AddNewObservation(queuedSite.Site.SiteUri, observations.IsOk);
+
+                var observationModel = new Observation { SiteUri = queuedSite.Site.SiteUri, ObservedAt = DateTime.UtcNow, IsAvailable = observations.IsOk };
+                var maybeEvent = await _siteObserver.GenerateEvent(observationModel);
+                
+                report.Observations.Add(observationModel);
+                if (maybeEvent is { } siteEvent)
+                {
+                    _logger.LogDebug("Should report site state change");
+                    report.Events.Add(siteEvent);
+                }
+                
                 SiteStatus.WithLabels(queuedSite.Site.SiteUri).Set(observations.IsOk ? 1 : 0);
                 _logger.LogInformation("Site observed");
             }
@@ -74,6 +86,10 @@ public class SpectatorJob : IJob
             }
         }
         _logger.LogDebug("The queue is finally empty, observations finished");
+        await _siteObserver.SaveReport(report);
+        _logger.LogInformation("Report saved!");
+        await _reporter.PublishReportData(report);
+        _logger.LogInformation("Report published!");
         sw.Stop();
         TotalSessionDuration.Set(sw.ElapsedMilliseconds);
     }

@@ -14,15 +14,15 @@ internal class ObservesRepository : IObservesRepository
 
     public async Task<Observation?> GetLastObservationForSite(string siteUri)
     {
-        var siteId = await _context.Sites
-            .Where(x => x.SiteUri == siteUri)
-            .Select(x => x.Id)
-            .SingleAsync();
-        var observation = await _context.Observations.Where(x => x.SiteId == siteId).OrderByDescending(x => x.ObservedAt).FirstOrDefaultAsync();
+        var observation = await _context.Observations
+            .Include(x => x.Site)
+            .Where(x => x.Site.SiteUri == siteUri)
+            .OrderByDescending(x => x.ObservedAt)
+            .FirstOrDefaultAsync();
         
         return observation is null ?
             null :
-            new Observation { ObservedAt = observation.ObservedAt, IsAvailable = observation.IsAvailable };
+            new Observation { ObservedAt = observation.ObservedAt, IsAvailable = observation.IsAvailable, SiteUri = observation.Site.SiteUri};
     }
 
     public async Task AddNewObservation(string siteUri, bool isAvailable, DateTime timestamp)

@@ -1,37 +1,37 @@
 namespace NTorSpectator.Database.Models;
 
 /// <summary>
-/// One observation record
+/// Single event
 /// </summary>
-public class Observation
+public class SiteAvailabilityEvent
 {
     /// <summary>
-    /// PK in db
+    /// PK
     /// </summary>
     public int Id { get; set; }
     
     /// <summary>
-    /// When the observation occured
+    /// FK to observation report in which this event occured
     /// </summary>
-    public DateTime ObservedAt { get; set; }
-    
+    public int ReportId { get; set; }
+
     /// <summary>
-    /// FK to sites
+    /// FK to sites - what site generated this event
     /// </summary>
     public int SiteId { get; set; }
 
     /// <summary>
-    /// Observed site
+    /// Navigation property - site
     /// </summary>
     public Site Site { get; set; } = null!;
     
     /// <summary>
-    /// Is available
+    /// Event occured at
     /// </summary>
-    public bool IsAvailable { get; set; }
+    public DateTime OccuredAt { get; set; }
     
     /// <summary>
-    /// FK to report - in which report this observation was made
+    /// event type - site up, site down
     /// </summary>
-    public int? ReportId { get; set; }
+    public int EventType { get; set; }
 }
