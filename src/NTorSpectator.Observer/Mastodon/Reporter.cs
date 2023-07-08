@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using NTorSpectator.Observer.Services;
 using NTorSpectator.Services;
+using NTorSpectator.Services.Models;
 
 namespace NTorSpectator.Observer.Mastodon;
 
@@ -69,5 +70,18 @@ public class Reporter : IReporter
         sb.AppendFormat("\u2705 {0} came up! \n\U0001F4A5 \U0001F4A5 \U0001F4A5", siteUri);
         await _mastodonClient.Toot(new(sb.ToString()));
         _logger.LogInformation("Posted a new status about came up site");
+    }
+
+    public async Task PublishReportData(Report report)
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat("Observed {0} sites up and {1} sites down.\n",
+            report.Observations.Count(x => x.IsAvailable),
+            report.Observations.Count(x => !x.IsAvailable));
+        sb.AppendFormat("Since previous report {0} sites came up, {1} gone down", 
+            report.Events.Count(x => x.Kind == AvailabilityEvent.EventType.Up),
+            report.Events.Count(x => x.Kind == AvailabilityEvent.EventType.Down));
+        await _mastodonClient.Toot(new(sb.ToString()));
+        _logger.LogInformation("New report published!");
     }
 }
