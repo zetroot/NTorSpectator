@@ -14,5 +14,9 @@ public interface ISitesCatalogue
     /// <returns>true if the site was added, otherwise - false</returns>
     Task<bool> AddIfNotExists(string siteUri);
 
+    /// <summary>
+    /// Get all sites from the persistent site catalogue
+    /// </summary>
+    /// <returns></returns>
     Task<IReadOnlyCollection<Site>> GetAllSites();
 }

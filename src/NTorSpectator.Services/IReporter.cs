@@ -1,7 +1,15 @@
+using NTorSpectator.Services.Models;
+
 namespace NTorSpectator.Services;
 
+/// <summary>
+/// Mastodon toots sender
+/// </summary>
 public interface IReporter
 {
-    Task ReportWentDown(string siteUri, DateTime lastSeen);
-    Task ReportCameUp(string siteUri);
+    /// <summary>
+    /// Publish toot with report data
+    /// </summary>
+    /// <param name="report">Report to publish</param>
+    Task PublishReportData(Report report);
 }

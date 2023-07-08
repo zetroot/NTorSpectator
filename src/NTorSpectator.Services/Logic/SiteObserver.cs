@@ -1,50 +1,47 @@
 using Microsoft.Extensions.Logging;
+using NTorSpectator.Services.Models;
 using NTorSpectator.Services.Persistent;
 
 namespace NTorSpectator.Services.Logic;
 
-public class SiteObserver : ISiteObserver
+internal class SiteObserver : ISiteObserver
 {
-    private readonly IReporter _reporter;
-    private readonly IObservesRepository _repo;
+    private readonly IObservesRepository _observationsRepository;
     private readonly ILogger<SiteObserver> _logger;
+    private readonly IReportsRepository _reportsRepository;
 
-    public SiteObserver(IReporter reporter, IObservesRepository repo, ILogger<SiteObserver> logger)
+    public SiteObserver(IReporter reporter, IObservesRepository observationsRepository, ILogger<SiteObserver> logger, IReportsRepository reportsRepository)
     {
-        _reporter = reporter;
-        _repo = repo;
+        _observationsRepository = observationsRepository;
         _logger = logger;
+        _reportsRepository = reportsRepository;
     }
 
-    public async Task AddNewObservation(string siteUri, bool isAvailable)
+    public async Task<AvailabilityEvent?> GenerateEvent(Observation observation)
     {
-        using var _ = _logger.BeginScope(new Dictionary<string, object> { { "SiteUri", siteUri }, { "IsAvailable", isAvailable } });
+        using var _ = _logger.BeginScope(new Dictionary<string, object> { { "SiteUri", observation.SiteUri }, { "IsAvailable", observation.IsAvailable } });
         _logger.LogDebug("Got new observation to save");
-        var previousObservation = await _repo.GetLastObservationForSite(siteUri);
-        await _repo.AddNewObservation(siteUri, isAvailable, DateTime.UtcNow);
-        _logger.LogInformation("Saved new observation");
+        var previousObservation = await _observationsRepository.GetLastObservationForSite(observation.SiteUri);
         if (previousObservation is null)
         {
             _logger.LogDebug("This is first observation for site. Won't compare with previous");
-            return;
+            return null;
         }
 
-        if (previousObservation.IsAvailable == isAvailable)
+        if (previousObservation.IsAvailable == observation.IsAvailable)
         {
-            _logger.LogDebug("Site availability has not changed, nothing to report");
-            return;   
+            _logger.LogDebug("Site availability has not changed, won't create event");
+            return null;   
         }
 
-        if (isAvailable)
+        _logger.LogDebug("Site availability changed! Will create new event");
+        return new()
         {
-            await _reporter.ReportCameUp(siteUri);
-            _logger.LogInformation("Reported site came up");
-        }
-        else
-        {
-            await _reporter.ReportWentDown(siteUri, previousObservation.ObservedAt);
-            _logger.LogInformation("Reported site went down");
-        }
-        
+            SiteUri = observation.SiteUri,
+            OccuredAt = observation.ObservedAt,
+            Kind = observation.IsAvailable ? AvailabilityEvent.EventType.Up : AvailabilityEvent.EventType.Down
+        }; 
     }
+
+    public Task SaveReport(Report report) => _reportsRepository.SaveReport(report);
 }
