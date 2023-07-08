@@ -14,4 +14,9 @@ public class Observation
     /// Is available
     /// </summary>
     public bool IsAvailable { get; set; }
+    
+    /// <summary>
+    /// Site uri, which was observed
+    /// </summary>
+    public required string SiteUri { get; init; } 
 }

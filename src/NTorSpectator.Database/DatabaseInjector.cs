@@ -22,7 +22,8 @@ public static class DatabaseInjector
         services.AddDbContextPool<DataContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("SpectatorDatabase")));
         services
             .AddTransient<ISitesRepository, SitesRepository>()
-            .AddTransient<IObservesRepository, ObservesRepository>();
+            .AddTransient<IObservesRepository, ObservesRepository>()
+            .AddTransient<IReportsRepository, ReportsRepository>();
         
         return services;
     }
