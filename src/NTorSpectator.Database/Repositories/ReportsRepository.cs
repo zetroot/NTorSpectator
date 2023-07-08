@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NTorSpectator.Database.Models;
 using NTorSpectator.Services.Models;
 using NTorSpectator.Services.Persistent;
+using Observation = NTorSpectator.Database.Models.Observation;
 
 namespace NTorSpectator.Database.Repositories;
 
@@ -20,7 +21,11 @@ internal class ReportsRepository : IReportsRepository
     public async Task SaveReport(Report report)
     {
         var siteList = await _context.Sites.ToListAsync();
-        var reportDal = new ObservationReport();
+        var reportDal = new ObservationReport
+        {
+            Observations = new List<Observation>(report.Observations.Count),
+            Events = new List<SiteAvailabilityEvent>(report.Events.Count)
+        };
         foreach (var observation in report.Observations)
         {
             var site = siteList.SingleOrDefault(x => x.SiteUri == observation.SiteUri);
