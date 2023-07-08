@@ -78,7 +78,7 @@ public class Reporter : IReporter
         sb.AppendFormat("Observed {0} sites up and {1} sites down.\n",
             report.Observations.Count(x => x.IsAvailable),
             report.Observations.Count(x => !x.IsAvailable));
-        sb.AppendFormat("Since previous report {0} sites came up, {1} gone down", 
+        sb.AppendFormat("Since previous report {0} sites came up, {1} gone down\n#tor", 
             report.Events.Count(x => x.Kind == AvailabilityEvent.EventType.Up),
             report.Events.Count(x => x.Kind == AvailabilityEvent.EventType.Down));
         await _mastodonClient.Toot(new(sb.ToString()));
